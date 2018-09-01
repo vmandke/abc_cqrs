@@ -24,7 +24,7 @@ build: deps
 	$(VIRTUAL_ENV)/bin/python setup.py bdist_wheel -d wheels;
 
 lint:
-	for file in $$(find parking_lot -name "*.py"); do pycodestyle $$file; done
+	for file in $$(find parkinglot -name "*.py"); do pycodestyle $$file; done
 	for file in $$(find tests -name "*.py"); do pycodestyle $$file; done
 
 .PHONY: build clean lint test deps
