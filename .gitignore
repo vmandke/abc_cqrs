@@ -1,4 +1,5 @@
 .DS_Store
 .env/
 parking_lot.egg-info/
+parkinglot.egg-info
 .cache/
