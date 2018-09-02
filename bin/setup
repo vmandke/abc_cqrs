@@ -10,3 +10,5 @@ echo "Building"
 make build
 echo "Creating soft ling for bin/parking_lot"
 ln -sf ../.env/bin/runner bin/parking_lot
+echo "Run the script to read from file"
+./bin/parking_lot file_inputs.txt
