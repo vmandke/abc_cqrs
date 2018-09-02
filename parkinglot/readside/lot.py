@@ -5,6 +5,7 @@ from parkinglot.util.actor import Actor
 class ReadSideLot(Actor):
     def __init__(self, name, num_slots, in_queue):
         super().__init__(in_queue)
+        self.name = name
         self.registration_view = {}
         self.color_view = defaultdict(lambda: [])
         self.register_receive('park', self.park)
