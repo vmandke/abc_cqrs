@@ -1,7 +1,12 @@
-# Add script to:
-# * Install dependencies
-# * Build/Compile
-# * Run Test Suit to validate
-#
-# After this is run, bin/parking_lot
-# should Just Work.
+#!/bin/bash
+
+echo "Deleting previous env if any"
+rm -rf .env
+echo "Building"
+make deps
+echo "Running Tests"
+make test
+echo "Building"
+make build
+echo "Creating soft ling for bin/parking_lot"
+ln -sf ../.env/bin/runner bin/parking_lot

@@ -9,4 +9,5 @@ setup(name='parkinglot',
       author_email='vmandke90@gmail.com',
       packages=find_packages(),
       include_package_data=True,
-      install_requires=['pytest==3.0.7'])
+      install_requires=['pytest==3.0.7'],
+      entry_points={'console_scripts': ['runner = parkinglot.runner:run']})
