@@ -3,8 +3,8 @@ import queue
 
 from parkinglot.util import Actor
 
-def actor_context(actor_queue, actor_type):
-    actor = actor_type(actor_queue)
+def actor_context(actor_type, actor_args):
+    actor = actor_type(**actor_args)
     actor.start()
 
 class Registry(Actor):
@@ -16,11 +16,12 @@ class Registry(Actor):
         self.register_receive('ask_foward', self.ask_foward)
         self.register_receive('kill_actor', self.kill_actor)
 
-    def spawn(self, identifier, actor_type):
+    def spawn(self, identifier, actor_type, actor_args):
         in_queue = queue.Queue()
+        actor_args['in_queue'] = in_queue
         actor_thread = threading.Thread(name=identifier,
                                         target=actor_context,
-                                        args=(in_queue, actor_type))
+                                        args=(actor_type, actor_args))
         actor_thread.daemon = True
         actor_thread.start()
         self.registered[identifier] = {
