@@ -1,4 +1,5 @@
 import bisect
+from multiprocessing.connection import Connection
 
 from parkinglot.util.actor import Actor
 
@@ -7,13 +8,18 @@ class WriteSideLot(Actor):
         super().__init__(in_queue)
         self.name = name
         self.read_side_events = read_side_events
-        self.num_slots = num_slots
+        self.num_slots = int(num_slots)
         # At the very beginning the very first
         # slot is empty
-        self.empty = [i for i in range(1, num_slots + 1)]
+        self.empty = [i for i in range(1, self.num_slots + 1)]
         self.occupied = {}
         self.register_receive('park', self.park)
         self.register_receive('leave', self.leave)
+
+    def send_read_side_event(self, event):
+        (self.read_side_events.send(event)
+         if isinstance(self.read_side_events, Connection)
+         else self.read_side_events.put(event))
 
     def park(self, car):
         result = "Sorry, parking lot is full"
@@ -21,12 +27,8 @@ class WriteSideLot(Actor):
             slot = self.empty.pop(0)
             self.occupied[slot] = car
             result = "Allocated slot number: {}".format(slot)
-            self.read_side_events.put(
-                ('ask_foward', None,
-                 {'identifier': self.name,
-                  'command': 'park',
-                  'sender_queue': None,
-                  'command_args': {'car': car, 'slot': slot}}))
+            self.send_read_side_event((
+                'park', None, {'car': car, 'slot': slot}))
         return result
 
     def leave(self, slot):
@@ -34,12 +36,8 @@ class WriteSideLot(Actor):
         if slot in self.occupied:
             car = self.occupied.pop(slot)
             bisect.insort(self.empty, slot)
-            self.read_side_events.put(
-                ('ask_foward', None,
-                 {'identifier': self.name,
-                  'command': 'leave',
-                  'sender_queue': None,
-                  'command_args': {'car': car, 'slot': slot}}))
+            self.send_read_side_event((
+                'leave', None, {'car': car, 'slot': slot}))
         elif slot < 1 or slot > self.num_slots:
             result = 'No such slot in the parking lot'
         return result

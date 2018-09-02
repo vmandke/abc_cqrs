@@ -3,10 +3,11 @@ from collections import defaultdict
 from parkinglot.util.actor import Actor
 
 class ReadSideLot(Actor):
-    def __init__(self, name, num_slots, in_queue):
+    def __init__(self, name, num_slots, in_queue, writer_conn):
         super().__init__(in_queue)
         self.name = name
         self.registration_view = {}
+        self.writer_conn = writer_conn
         self.color_view = defaultdict(lambda: [])
         self.register_receive('park', self.park)
         self.register_receive('leave', self.leave)
@@ -20,6 +21,22 @@ class ReadSideLot(Actor):
         self.register_receive(
             'slot_number_for_registration_number',
             self.get_slot_number_for_registration_number)
+
+    def receive(self):
+        # Receive the command from queue
+        # and execute associated function
+        message = None
+        while message is None:
+            message = (self.non_blocking_get(self.in_queue)
+                       or self.non_blocking_get(self.writer_conn))
+        command, sender_queue, args = message
+        if command == 'exit':
+            sys.exit()
+        else:
+            fn = self.behaviour[command]
+            result = fn() if not args else fn(**args)
+            if sender_queue:
+                self.put_on_sender(result, sender_queue)
 
     def park(self, car, slot):
         # Update registration_view

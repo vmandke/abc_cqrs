@@ -12,8 +12,8 @@ class CommandExecuter():
     def add_command(self, command, arg_count, arg_names):
         self.commands[command] = (arg_count, arg_names)
 
-    def add_registry_command(self, command, arg_count, arg_names):
-        self.registry_commands[command] = (arg_count, arg_names)
+    def add_registry_command(self, command, arg_count, arg_names, registry_fn):
+        self.registry_commands[command] = (arg_count, arg_names, registry_fn)
 
     def get_command_args_and_id(self, command_line, arg_count, arg_names):
         identifier = "1" # set the default identifier
@@ -27,12 +27,10 @@ class CommandExecuter():
         command = command_line[0]
         arg_count, arg_names = None, None
         if command in self.registry_commands:
-            arg_count, arg_names = self.registry_commands[command]
+            arg_count, arg_names, registry_fn = self.registry_commands[command]
             identifier, command_args = self.get_command_args_and_id(
                                             command_line, arg_count, arg_names)
-            # As this is a registry command, broadcast this
-            self.read_registry_queue.put((command, None, command_args))
-            self.write_registry_queue.put((command, None, command_args))
+            registry_fn(**command_args)
         elif command in self.queries:
             arg_count, arg_names = self.queries[command]
             identifier, command_args = self.get_command_args_and_id(
