@@ -16,8 +16,9 @@ class WriteSideLot(Actor):
         self.occupied = {}
         self.register_receive('park', self.park)
         self.register_receive('leave', self.leave)
-        sender_conn.send(
-          'Created a parking lot with {} slots'.format(self.num_slots))
+        if sender_conn:
+            sender_conn.send(
+                'Created a parking lot with {} slots'.format(self.num_slots))
 
     def send_read_side_event(self, event):
         (self.read_side_events.send(event)

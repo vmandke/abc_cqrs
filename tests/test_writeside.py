@@ -7,12 +7,15 @@ from parkinglot.util.car import Car
 def fill_lot(max_slots, writelot, in_queue, sender_queue, events_queue):
     for slot in range(1, max_slots + 1):
         car = Car(str(slot), 'White')
-        in_queue.put(('park', sender_queue, {'car': car}))
+        in_queue.put(('park', sender_queue, {'rno': str(slot), 'color': 'White'}))
         writelot.receive()
         assert(sender_queue.get() == 'Allocated slot number: {}'.format(slot))
-        assert(events_queue.get() == ('park', None, {'car': car, 'slot': slot}))
-    car = Car(str(max_slots + 1), 'White')
-    in_queue.put(('park', sender_queue, {'car': car}))
+        events_response = events_queue.get()
+        assert(events_response[0] == 'park')
+        assert(events_response[1] == None)
+        assert(events_response[2]['slot'] == slot)
+    in_queue.put(('park', sender_queue, {'rno': str(max_slots + 1),
+                                         'color': 'White'}))
     writelot.receive()
     assert(sender_queue.get() == 'Sorry, parking lot is full')
 
@@ -36,7 +39,7 @@ def test_writesidelot():
     events_queue = queue.Queue()
     sender_queue = queue.Queue()
     max_slots = 6
-    writelot = WriteSideLot('test', max_slots, in_queue, events_queue)
+    writelot = WriteSideLot('test', max_slots, in_queue, events_queue, None)
     assert(len(writelot.empty) == max_slots)
     fill_lot(max_slots, writelot, in_queue, sender_queue, events_queue)
     leave(writelot, in_queue, sender_queue, events_queue)

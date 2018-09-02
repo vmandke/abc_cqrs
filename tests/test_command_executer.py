@@ -14,7 +14,7 @@ def test_command_executer():
     sender_queue = queue.Queue()
     test_parser = CommandExecuter(read_registry_queue, write_registry_queue)
     # register a registry command
-    def reg_comm_fn(arg1):
+    def reg_comm_fn(arg1, sender_conn):
         read_registry_queue.put(('reg_comm', None, {'arg1': 'arg1_value'}))
         write_registry_queue.put(('reg_comm', None, {'arg1': 'arg1_value'}))
     test_parser.add_registry_command('reg_comm', 1, ['arg1'], reg_comm_fn)
@@ -28,8 +28,8 @@ def test_command_executer():
     test_parser.execute_command_line(
         'add_save 3 4', sender_queue)
     assert(write_registry_queue.get() == (
-                'add_save', None, {'command_args': {'y': '4', 'x': '3'}, 
-                                   'identifier': '1', 
+                'ask_foward', None, {'command_args': {'y': '4', 'x': '3'}, 
+                                   'identifier': '0', 
                                    'command': 'add_save', 
                                    'sender_queue': sender_queue}))
     # register a query
@@ -37,7 +37,7 @@ def test_command_executer():
     test_parser.execute_command_line(
         'add_get 3 4 2', sender_queue)
     assert(read_registry_queue.get() == (
-                'add_get', None, {'command_args': {'y': '4', 'x': '3'}, 
+                'ask_foward', None, {'command_args': {'y': '4', 'x': '3'}, 
                                    'identifier': '2', 
                                    'command': 'add_get', 
                                    'sender_queue': sender_queue}))
@@ -64,25 +64,25 @@ def test_executer_multiprocess():
     read_registry.start()
     test_parser = CommandExecuter(read_queue, write_queue)
     time.sleep(1)
-    def create_parking(num_slots):
+    def create_parking(num_slots, sender_conn):
         write_queue.put(('create_parking_lot', None, 
-                         {'num_slots': num_slots}))
+                         {'num_slots': num_slots,
+                          'sender_conn': sender_conn}))
 
     test_parser.add_registry_command(
         'create_parking_lot', 1, ['num_slots'], create_parking)
     test_parser.execute_command_line(
         'create_parking_lot 6', None)
     # Park a car
-    car = Car('1', 'White')
     time.sleep(1)
     write_queue.put(('ask_foward',
                      None,
                      {'identifier': '0',
                       'command': 'park',
                       'sender_queue': None,
-                      'command_args': {'car': car}}))
+                      'command_args': {'rno': '1', 'color': 'White'}}))
     time.sleep(2)
-    # Receive status
+    # # Receive status
     piped_queue = MultiProcessPassableQueue()
     read_queue.put(('ask_foward',
                     None,
@@ -95,5 +95,6 @@ def test_executer_multiprocess():
     assert(piped_queue.get_consumer_conn().recv() == expected_status)
     write_queue.put(('exit', None, None))
     read_queue.put(('exit', None, None))
+    time.sleep(2)
     write_registry.join(timeout=1)
     read_registry.join(timeout=1)
