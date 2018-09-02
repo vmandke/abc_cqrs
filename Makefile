@@ -12,6 +12,7 @@ endif
 clean:
 	find . -name '*.pyc' -delete
 	find . -type d -name __pycache__ -exec rm -r {} \+
+	git clean -n
 
 deps: $(PRE_DEPS)
 	$(VIRTUAL_ENV)/bin/pip install -e .

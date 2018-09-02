@@ -4,7 +4,11 @@ echo "Deleting previous env if any"
 rm -rf .env
 echo "Building"
 make deps
-echo "Running Tests"
+echo
+echo "============================================="
+echo "Running Tests, tests might take ~15 seconds"
+echo "============================================="
+echo
 make test
 echo "Building"
 make build
