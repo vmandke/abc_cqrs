@@ -95,3 +95,5 @@ def test_executer_multiprocess():
     assert(piped_queue.get_consumer_conn().recv() == expected_status)
     write_queue.put(('exit', None, None))
     read_queue.put(('exit', None, None))
+    write_registry.join(timeout=1)
+    read_registry.join(timeout=1)

@@ -18,9 +18,10 @@ def check_count(command, args, readlot, in_queue, sender_queue, expected_count):
 
 def test_readsidelot():
     in_queue = queue.Queue()
+    writer_conn = queue.Queue()
     sender_queue = queue.Queue()
     max_slots = 6
-    readlot = ReadSideLot('test', max_slots, in_queue)
+    readlot = ReadSideLot('test', max_slots, in_queue, writer_conn)
     # Check park
     fill_park(max_slots, in_queue, readlot)
     assert(len(readlot.registration_view) == max_slots)

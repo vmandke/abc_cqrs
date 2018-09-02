@@ -10,11 +10,7 @@ def fill_lot(max_slots, writelot, in_queue, sender_queue, events_queue):
         in_queue.put(('park', sender_queue, {'car': car}))
         writelot.receive()
         assert(sender_queue.get() == 'Allocated slot number: {}'.format(slot))
-        assert(events_queue.get() == ('ask_foward', None,
-                                      {'command': 'park',
-                                       'identifier': 'test', 
-                                       'command_args': {'car': car, 'slot': slot},
-                                       'sender_queue': None}))
+        assert(events_queue.get() == ('park', None, {'car': car, 'slot': slot}))
     car = Car(str(max_slots + 1), 'White')
     in_queue.put(('park', sender_queue, {'car': car}))
     writelot.receive()
@@ -27,11 +23,7 @@ def leave(writelot, in_queue, sender_queue, events_queue):
     in_queue.put(('leave', sender_queue, {'slot': slot}))
     writelot.receive()
     assert(sender_queue.get() == 'Slot number {} is free'.format(slot))
-    assert(events_queue.get() == ('ask_foward', None,
-                                  {'command': 'leave',
-                                   'identifier': 'test', 
-                                   'command_args': {'car': car, 'slot': slot},
-                                   'sender_queue': None}))
+    assert(events_queue.get() == ('leave', None, {'car': car, 'slot': slot}))
     # Leave from a non existant slot
     in_queue.put(('leave', sender_queue, {'slot': -1}))
     writelot.receive()
