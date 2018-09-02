@@ -9,12 +9,13 @@ class ParkingLotRegistry(Registry):
         self.read_registry_queue = read_registry_queue
         self.register_receive('create_parking_lot', self.create_parking_lot)
 
-    def create_parking_lot(self, num_slots):
+    def create_parking_lot(self, num_slots, sender_conn):
         # trigger a actor spwan
         lotid = str(self.num_lots)
         piped_queue = MultiProcessPassableQueue()
         args = {'name': lotid, 'num_slots': num_slots,
-                'read_side_events': piped_queue.get_producer_conn()}
+                'read_side_events': piped_queue.get_producer_conn(),
+                'sender_conn': sender_conn}
         self.in_queue.put(('spawn', None, {'identifier': lotid,
                                            'actor_type': WriteSideLot,
                                            'actor_args': args}))

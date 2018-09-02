@@ -2,9 +2,10 @@ import bisect
 from multiprocessing.connection import Connection
 
 from parkinglot.util.actor import Actor
+from parkinglot.util.car import Car
 
 class WriteSideLot(Actor):
-    def __init__(self, name, num_slots, in_queue, read_side_events):
+    def __init__(self, name, num_slots, in_queue, read_side_events, sender_conn):
         super().__init__(in_queue)
         self.name = name
         self.read_side_events = read_side_events
@@ -15,13 +16,16 @@ class WriteSideLot(Actor):
         self.occupied = {}
         self.register_receive('park', self.park)
         self.register_receive('leave', self.leave)
+        sender_conn.send(
+          'Created a parking lot with {} slots'.format(self.num_slots))
 
     def send_read_side_event(self, event):
         (self.read_side_events.send(event)
          if isinstance(self.read_side_events, Connection)
          else self.read_side_events.put(event))
 
-    def park(self, car):
+    def park(self, rno, color):
+        car = Car(rno, color)
         result = "Sorry, parking lot is full"
         if len(self.empty) > 0:
             slot = self.empty.pop(0)
@@ -33,6 +37,7 @@ class WriteSideLot(Actor):
 
     def leave(self, slot):
         result = 'Slot number {} is free'.format(slot)
+        slot = int(slot)
         if slot in self.occupied:
             car = self.occupied.pop(slot)
             bisect.insort(self.empty, slot)
