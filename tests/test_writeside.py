@@ -4,15 +4,17 @@ import random
 from parkinglot.writeside.lot import WriteSideLot
 from parkinglot.util.car import Car
 
+
 def fill_lot(max_slots, writelot, in_queue, sender_queue, events_queue):
     for slot in range(1, max_slots + 1):
         car = Car(str(slot), 'White')
-        in_queue.put(('park', sender_queue, {'rno': str(slot), 'color': 'White'}))
+        in_queue.put(('park', sender_queue,
+                      {'rno': str(slot), 'color': 'White'}))
         writelot.receive()
         assert(sender_queue.get() == 'Allocated slot number: {}'.format(slot))
         events_response = events_queue.get()
         assert(events_response[0] == 'park')
-        assert(events_response[1] == None)
+        assert(events_response[1] is None)
         assert(events_response[2]['slot'] == slot)
     in_queue.put(('park', sender_queue, {'rno': str(max_slots + 1),
                                          'color': 'White'}))
@@ -33,7 +35,6 @@ def leave(writelot, in_queue, sender_queue, events_queue):
     assert(sender_queue.get() == 'No such slot in the parking lot')
 
 
-
 def test_writesidelot():
     in_queue = queue.Queue()
     events_queue = queue.Queue()
@@ -43,4 +44,3 @@ def test_writesidelot():
     assert(len(writelot.empty) == max_slots)
     fill_lot(max_slots, writelot, in_queue, sender_queue, events_queue)
     leave(writelot, in_queue, sender_queue, events_queue)
-

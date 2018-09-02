@@ -2,6 +2,7 @@ from parkinglot.util.registry import Registry
 from parkinglot.writeside.lot import WriteSideLot
 from parkinglot.util.passablequeue import MultiProcessPassableQueue
 
+
 class ParkingLotRegistry(Registry):
     def __init__(self, in_queue, read_registry_queue):
         super().__init__('WriteSideParkingRegistry', in_queue)

@@ -3,9 +3,11 @@ import queue
 
 from parkinglot.util import Actor
 
+
 def actor_context(actor_type, actor_args):
     actor = actor_type(**actor_args)
     actor.start()
+
 
 class Registry(Actor):
     def __init__(self, name, in_queue):

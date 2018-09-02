@@ -3,9 +3,11 @@ import sys
 import os.path
 
 from parkinglot.user.parser import CommandExecuter
-from parkinglot.writeside.registry import ParkingLotRegistry as WriteSideRegistry
+from parkinglot.writeside.registry import (
+    ParkingLotRegistry as WriteSideRegistry)
 from parkinglot.readside.registry import ParkingLotRegistry as ReadSideRegistry
 from parkinglot.util.passablequeue import MultiProcessPassableQueue
+
 
 class Runner():
     def __init__(self):
@@ -76,6 +78,7 @@ class Runner():
                 self.handle_line(line)
         self.handle_line('exit')
 
+
 def run():
     runner = Runner()
     if len(sys.argv) > 1 and os.path.isfile(sys.argv[1]):
@@ -83,4 +86,3 @@ def run():
     else:
         while True:
             runner.read_command_line()
-

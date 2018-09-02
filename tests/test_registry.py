@@ -5,12 +5,15 @@ import time
 from parkinglot.util.registry import Registry
 from parkinglot.util.actor import Actor
 
+
 class AdditionActor(Actor):
     def __init__(self, in_queue):
         super().__init__(in_queue)
         self.register_receive('add', self.add)
+
     def add(self, x, y):
         return x + y
+
 
 def test_addition_actor():
     in_queue = queue.Queue()

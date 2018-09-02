@@ -2,6 +2,7 @@ from collections import defaultdict
 
 from parkinglot.util.actor import Actor
 
+
 class ReadSideLot(Actor):
     def __init__(self, name, num_slots, in_queue, writer_conn):
         super().__init__(in_queue)
@@ -58,9 +59,9 @@ class ReadSideLot(Actor):
     def get_status(self):
         cars = [{'slot': c['slot'],
                  'rno': c['car'].get_registration_number(),
-                 'color': c['car'].get_color()} for c in 
+                 'color': c['car'].get_color()} for c in
                 sorted([c for c in self.registration_view.values()],
-                        key=lambda cdata: cdata['slot'])]
+                       key=lambda cdata: cdata['slot'])]
         cars = [{'slot': 'Slot No.',
                  'rno': 'Registration No',
                  'color': 'Colour'}] + cars
@@ -70,7 +71,7 @@ class ReadSideLot(Actor):
         status = '\n'.join(['{} {} {}'.format(
                         str(c['slot']).ljust(ljust_sn),
                         str(c['rno']).ljust(ljust_rn),
-                        str(c['color']).ljust(ljust_c)) 
+                        str(c['color']).ljust(ljust_c))
                             for c in cars])
         return status
 
@@ -85,4 +86,3 @@ class ReadSideLot(Actor):
         return (self.registration_view[rno]['slot']
                 if rno in self.registration_view
                 else 'Not found')
-

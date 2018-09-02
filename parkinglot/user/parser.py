@@ -1,5 +1,6 @@
 from multiprocessing.connection import Connection
 
+
 class CommandExecuter():
     def __init__(self, read_registry_queue, write_registry_queue):
         self.commands = {}
@@ -18,7 +19,7 @@ class CommandExecuter():
         self.registry_commands[command] = (arg_count, arg_names, registry_fn)
 
     def get_command_args_and_id(self, command_line, arg_count, arg_names):
-        identifier = "0" # set the default identifier
+        identifier = "0"  # set the default identifier
         if len(command_line) == arg_count + 2:
             identifier = command_line[-1]
         command_args = dict(zip(arg_names, command_line[1:1 + len(arg_names)]))
@@ -64,4 +65,5 @@ class CommandExecuter():
         else:
             if sender_queue:
                 self.send_to_sender(
-                    sender_queue, '{} is not a registered command'.format(command))
+                    sender_queue,
+                    '{} is not a registered command'.format(command))

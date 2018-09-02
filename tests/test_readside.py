@@ -4,13 +4,16 @@ import random
 from parkinglot.readside.lot import ReadSideLot
 from parkinglot.util.car import Car
 
+
 def fill_park(max_slots, in_queue, readlot):
     for slot in range(1, max_slots + 1):
         car = Car(str(slot), 'White')
         in_queue.put(('park', None, {'car': car, 'slot': slot}))
         readlot.receive()
 
-def check_count(command, args, readlot, in_queue, sender_queue, expected_count):
+
+def check_count(command, args, readlot, in_queue,
+                sender_queue, expected_count):
     in_queue.put((command, sender_queue, args))
     readlot.receive()
     assert(len(str(sender_queue.get()).split(',')) == expected_count)
@@ -47,21 +50,21 @@ def test_readsidelot():
     readlot.receive()
     assert(len(readlot.registration_view) == max_slots - 1)
     # registration_numbers_for_cars_with_colour
-    check_count('registration_numbers_for_cars_with_colour', 
+    check_count('registration_numbers_for_cars_with_colour',
                 {'color': 'White'},
                 readlot,
                 in_queue,
                 sender_queue,
                 max_slots - 1)
     # slot_numbers_for_cars_with_colour
-    check_count('slot_numbers_for_cars_with_colour', 
+    check_count('slot_numbers_for_cars_with_colour',
                 {'color': 'White'},
                 readlot,
                 in_queue,
                 sender_queue,
                 max_slots - 1)
     # slot_number_for_registration_number
-    check_count('slot_number_for_registration_number', 
+    check_count('slot_number_for_registration_number',
                 {'rno': random.choice(list(readlot.registration_view.keys()))},
                 readlot,
                 in_queue,

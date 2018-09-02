@@ -4,8 +4,10 @@ from multiprocessing.connection import Connection
 from parkinglot.util.actor import Actor
 from parkinglot.util.car import Car
 
+
 class WriteSideLot(Actor):
-    def __init__(self, name, num_slots, in_queue, read_side_events, sender_conn):
+    def __init__(self, name, num_slots, in_queue,
+                 read_side_events, sender_conn):
         super().__init__(in_queue)
         self.name = name
         self.read_side_events = read_side_events

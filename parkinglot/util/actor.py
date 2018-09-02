@@ -24,7 +24,6 @@ class Actor:
         except Exception as e:
             return None
 
-
     def blocking_get(self):
         return (self.in_queue.recv()
                 if isinstance(self.in_queue, Connection)

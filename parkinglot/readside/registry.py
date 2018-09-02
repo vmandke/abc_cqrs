@@ -1,6 +1,7 @@
 from parkinglot.util.registry import Registry
 from parkinglot.readside.lot import ReadSideLot
 
+
 class ParkingLotRegistry(Registry):
     def __init__(self, in_queue):
         super().__init__('ReadSideParkingRegistry', in_queue)

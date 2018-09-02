@@ -4,10 +4,12 @@ import time
 
 from parkinglot.util.actor import Actor
 
+
 def create_addition_actor(in_queue):
     add_actor = Actor(in_queue)
-    add_actor.register_receive('add', lambda x,y: x + y)
+    add_actor.register_receive('add', lambda x, y: x + y)
     return add_actor
+
 
 def test_simple_actor():
     # Create in_queue, and sender queues
@@ -22,6 +24,7 @@ def test_simple_actor():
     # Check that response it got from actor
     response = sender_queue.get()
     assert(response == 3)
+
 
 def test_actor_in_own_context():
     def context(in_queue):
@@ -40,5 +43,3 @@ def test_actor_in_own_context():
     # Wait sometime for the command to be read
     time.sleep(2)
     assert(threading.active_count() == 1)
-
-
