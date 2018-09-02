@@ -82,5 +82,7 @@ class ReadSideLot(Actor):
                          for rno in self.color_view[color]])
 
     def get_slot_number_for_registration_number(self, rno):
-        return self.registration_view[rno]['slot']
+        return (self.registration_view[rno]['slot']
+                if rno in self.registration_view
+                else 'Not found')
 

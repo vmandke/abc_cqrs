@@ -1,5 +1,6 @@
 import multiprocessing as mp
 import sys
+import os.path
 
 from parkinglot.user.parser import CommandExecuter
 from parkinglot.writeside.registry import ParkingLotRegistry as WriteSideRegistry
@@ -66,9 +67,18 @@ class Runner():
             input(), piped_queue.get_producer_conn())
         print(piped_queue.get_consumer_conn().recv())
 
+    def run_from_file(self, filename):
+        with open(filename, 'r') as fd:
+            for line in fd:
+                piped_queue = MultiProcessPassableQueue()
+                self.command_parser.execute_command_line(
+                    line, piped_queue.get_producer_conn())
+                print(piped_queue.get_consumer_conn().recv())
 
 def run():
     runner = Runner()
     while True:
+        if len(sys.argv) > 1 and os.path.isfile(sys.argv[1]):
+            runner.run_from_file(sys.argv[1])
         runner.read_command_line()
 

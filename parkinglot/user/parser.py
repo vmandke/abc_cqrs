@@ -30,6 +30,7 @@ class CommandExecuter():
          else sender_queue.put(event))
 
     def execute_command_line(self, command_line, sender_queue):
+        command_line = command_line.strip()
         command_line = list(filter(lambda x: x, command_line.split(' ')))
         command = command_line[0]
         arg_count, arg_names = None, None
