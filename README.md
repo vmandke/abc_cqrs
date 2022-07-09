@@ -13,9 +13,6 @@ I have tried to incorporate the Actor model, as I have understood it into this s
 
 As this is a minimal actor model representation there is a slight delay while generating the outputs, as the communication, thought async internally, is blocked on output at the user's end. I assume that this delay is what causes the provided tests to fail, (due to time constrainst not fixing the provided tests)
 
-### Running file_inputs
-###### ./bin/parking_lot file_inputs.txt
-
 ### Possible improvement 
 -- Registries might become hotspots
 -- Python threads are inefficient due to GIL, taskless / greenlets can be explored
