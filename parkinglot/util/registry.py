@@ -34,8 +34,7 @@ class Registry(Actor):
 
     def ask_foward(self, identifier, command, sender_queue, command_args):
         # Put a command on the in_queue of the identified actor
-        self.registered[identifier]['in_queue'].put((
-            command, sender_queue, command_args))
+        self.registered[identifier]['in_queue'].put((command, sender_queue, command_args))
 
     def kill_actor(self, identifier):
         # Individual actors should handle this poison pill

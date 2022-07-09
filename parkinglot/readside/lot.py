@@ -1,3 +1,4 @@
+import sys
 from collections import defaultdict
 
 from parkinglot.util.actor import Actor
@@ -7,6 +8,7 @@ class ReadSideLot(Actor):
     def __init__(self, name, num_slots, in_queue, writer_conn):
         super().__init__(in_queue)
         self.name = name
+        self.num_slots = num_slots
         self.registration_view = {}
         self.writer_conn = writer_conn
         self.color_view = defaultdict(lambda: [])
@@ -79,10 +81,7 @@ class ReadSideLot(Actor):
         return ",".join(self.color_view[color])
 
     def get_slot_numbers_for_cars_with_colour(self, color):
-        return ",".join([str(self.registration_view[rno]['slot'])
-                         for rno in self.color_view[color]])
+        return ",".join([str(self.registration_view[rno]['slot']) for rno in self.color_view[color]])
 
     def get_slot_number_for_registration_number(self, rno):
-        return (self.registration_view[rno]['slot']
-                if rno in self.registration_view
-                else 'Not found')
+        return (self.registration_view[rno]['slot'] if rno in self.registration_view else 'Not found')

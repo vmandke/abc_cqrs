@@ -5,3 +5,4 @@ parkinglot.egg-info
 .cache/
 build/
 wheels/
+.idea

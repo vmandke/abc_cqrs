@@ -1,13 +1,13 @@
 import multiprocessing as mp
 import queue
 import time
+from functools import partial
 
+import parkinglot
 from parkinglot.user.parser import CommandExecuter
 from parkinglot.util.passablequeue import MultiProcessPassableQueue
-from parkinglot.writeside.registry import (
-    ParkingLotRegistry as WriteSideRegistry)
+from parkinglot.writeside.registry import ParkingLotRegistry as WriteSideRegistry
 from parkinglot.readside.registry import ParkingLotRegistry as ReadSideRegistry
-from parkinglot.util.car import Car
 
 
 def test_command_executer():
@@ -51,57 +51,42 @@ def test_command_executer():
 
 
 def test_executer_multiprocess():
-    process_manager = mp.Manager()
+    write_queue = mp.Queue()
+    read_queue = mp.Queue()
 
-    def writeworker(registry_type, in_queue, read_queue):
-        registry = registry_type(in_queue, read_queue)
-        registry.start()
-
-    def readworker(registry_type, in_queue):
-        registry = registry_type(in_queue)
-        registry.start()
-
-    write_queue = process_manager.Queue()
-    read_queue = process_manager.Queue()
-    write_registry = mp.Process(target=writeworker, args=(WriteSideRegistry,
-                                                          write_queue,
-                                                          read_queue))
-    write_registry.start()
-    read_registry = mp.Process(target=readworker, args=(ReadSideRegistry,
-                                                        read_queue))
+    read_registry = mp.Process(target=partial(ReadSideRegistry, read_queue, auto_start=True))
     read_registry.start()
+    write_registry = mp.Process(target=partial(WriteSideRegistry, write_queue, read_queue, auto_start=True))
+    write_registry.start()
     test_parser = CommandExecuter(read_queue, write_queue)
     time.sleep(1)
 
-    def create_parking(num_slots, sender_conn):
-        write_queue.put(('create_parking_lot', None,
-                         {'num_slots': num_slots,
-                          'sender_conn': sender_conn}))
+    def create_parking(num_slots, name, sender_conn):
+        write_queue.put(
+            ('create_parking_lot', None, {'num_slots': num_slots, 'name': name, 'sender_conn': sender_conn})
+        )
 
-    test_parser.add_registry_command(
-        'create_parking_lot', 1, ['num_slots'], create_parking)
-    test_parser.execute_command_line(
-        'create_parking_lot 6', None)
+    test_parser.add_registry_command('create_parking_lot', 2, ['num_slots', 'name'], create_parking)
+    test_parser.execute_command_line('create_parking_lot 6 Lot1', None)
     # Park a car
     time.sleep(1)
     write_queue.put(('ask_foward',
                      None,
-                     {'identifier': '0',
+                     {'identifier': 'Lot1',
                       'command': 'park',
                       'sender_queue': None,
                       'command_args': {'rno': '1', 'color': 'White'}}))
     time.sleep(2)
     # # Receive status
-    piped_queue = MultiProcessPassableQueue()
-    read_queue.put(('ask_foward',
-                    None,
-                    {'identifier': '0',
-                     'command': 'status',
-                     'sender_queue': piped_queue.get_producer_conn(),
-                     'command_args': {}}))
+    conn1, conn2 = mp.Pipe(True)
+    read_queue.put(
+        ('ask_foward', None, {'identifier': 'Lot1', 'command': 'status', 'sender_queue': conn1, 'command_args': {}})
+    )
     expected_status = ('Slot No. Registration No Colour\n' +
                        '1        1               White ')
-    assert(piped_queue.get_consumer_conn().recv() == expected_status)
+    time.sleep(2)
+    assert conn2.poll()
+    assert conn2.recv() == expected_status
     write_queue.put(('exit', None, None))
     read_queue.put(('exit', None, None))
     time.sleep(2)

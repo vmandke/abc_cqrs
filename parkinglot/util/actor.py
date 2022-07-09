@@ -16,23 +16,27 @@ class Actor:
     def register_receive(self, command, command_fn):
         self.behaviour[command] = command_fn
 
-    def non_blocking_get(self, pipe):
+    @staticmethod
+    def non_blocking_get(pipe):
+        result = None
         try:
-            return ((pipe.recv() if pipe.poll() else None)
-                    if isinstance(pipe, Connection)
-                    else pipe.get(False))
-        except Exception as e:
-            return None
+            result = (
+                (pipe.recv() if pipe.poll() else None) if isinstance(pipe, Connection) else pipe.get(False)
+            )
+        except Exception:
+            pass
+        return result
 
     def blocking_get(self):
-        return (self.in_queue.recv()
-                if isinstance(self.in_queue, Connection)
-                else self.in_queue.get())
+        return (
+            self.in_queue.recv() if isinstance(self.in_queue, Connection) else self.in_queue.get()
+        )
 
-    def put_on_sender(self, result, sender_queue):
-        (sender_queue.send(result)
-         if isinstance(sender_queue, Connection)
-         else sender_queue.put(result))
+    @staticmethod
+    def put_on_sender(result, sender_queue):
+        (
+            sender_queue.send(result) if isinstance(sender_queue, Connection) else sender_queue.put(result)
+        )
 
     def receive(self):
         # Receive the command from queue
