@@ -1,5 +1,7 @@
 
-# Running tests
+# ABC of CQRS (circa 2018)
+
+### Running tests
 ###### make test
 
 ### Arch
