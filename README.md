@@ -1,6 +1,3 @@
-# Running
-###### ./bin/setup
-###### ./bin/parking_lot
 
 # Running tests
 ###### make test
